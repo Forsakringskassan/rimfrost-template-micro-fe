@@ -7,7 +7,7 @@ Appen eller enstaka komponenter kan exporteras och användas i host-projektet. S
 
 Information om Module Federation finns [att läsa här](https://module-federation.io/index.html).
 
-Kom ihåg att lägga till alla bibliotek som används i den komponent som exporteras under federation-inställningarna i vite.config.ts.
+Kom ihåg att lägga till alla bibliotek som används i den komponent som exporteras under federation-inställningarna i vite.config.ts, samt att använda scoped styles direkt i komponenterna.
 
 ### Installation
 Med Node.js installerat, kör ```npm install``` i en terminal öppen i mappen.
