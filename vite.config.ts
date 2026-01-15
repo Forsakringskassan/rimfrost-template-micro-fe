@@ -36,6 +36,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/regel": "http://localhost:8890",
+      "/api": "http://localhost:3000"
     },
     port: 3034,
   },
