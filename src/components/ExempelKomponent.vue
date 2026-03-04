@@ -9,6 +9,10 @@
   const toDoTitle = ref('');
   const loading = ref(false);
   const error = ref('');
+  // Stores the cat fact text retrieved from the meowfacts API
+  const catFact = ref('');
+  // Loading state for the cat fact fetch operation
+  const catLoading = ref(false);
 
   function capitalizeFirstLetter(str: string): string {
     return str.charAt(0).toUpperCase() + str.slice(1);
@@ -32,6 +36,29 @@
       loading.value = false;
     }
   }
+
+   // Fetches a random cat fact from the API
+  async function fetchCatFact() {
+    catLoading.value = true;
+    error.value = '';
+
+    try {
+      // Use the BFF URL from environment variables, with a fallback to localhost
+      const bffUrl = import.meta.env.VITE_BFF_URL || 'http://localhost:9002';
+      const response = await fetch(`${bffUrl}/api/cat-fact`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch cat fact');
+      }
+      const responseData = await response.json();
+      // Assuming the API returns an array of cat facts, we take the first one
+      catFact.value = responseData.data[0];
+    } catch (err) {
+      error.value = 'Ett fel uppstod vid hämtning av kattfakta';
+      console.error(err);
+    } finally {
+      catLoading.value = false;
+    }
+  }
 </script>
 
 <template>
@@ -40,10 +67,15 @@
       <p>Räknare: {{ count }}</p>
       <p>|</p>
       <p>Att göra: {{ capitalizeFirstLetter(toDoTitle) }}</p>
+      <p>|</p>
+      <!-- Display the cat fact retrieved from the API -->
+      <p>Kattfakta: {{ catFact }}</p>
     </div>
     <div>
       <FButton @click="productStore.increaseCount">Öka räknare</FButton>
       <FButton @click="fetchTestData" :disabled="loading">Hämta Att-göra</FButton>
+    <!-- Button to fetch a random cat fact, disabled while loading -->
+      <FButton @click="fetchCatFact" :disabled="catLoading">Hämta Kattfakta</FButton>
     </div>
   </div>
 </template>
