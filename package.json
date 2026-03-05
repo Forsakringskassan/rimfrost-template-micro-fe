@@ -6,7 +6,7 @@
   "exports": {
     ".": {
       "import": "./dist/exampleComponent.js",
-      "style": "./dist/exampleComponent.css"
+      "style": "./dist/assets/exampleComponent.css"
     }
   },
   "scripts": {
