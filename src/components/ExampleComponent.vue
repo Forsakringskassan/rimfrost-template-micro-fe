@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { computed, ref } from 'vue';
-  import { useProductStore } from '../stores/ExempelStore';
+  import { useProductStore } from '../stores/ExampleStore';
   import { FButton } from '@fkui/vue';
 
   const productStore = useProductStore();
@@ -9,6 +9,9 @@
   const toDoTitle = ref('');
   const loading = ref(false);
   const error = ref('');
+
+  const catFact = ref('');
+  const catLoading = ref(false);
 
   function capitalizeFirstLetter(str: string): string {
     return str.charAt(0).toUpperCase() + str.slice(1);
@@ -32,6 +35,26 @@
       loading.value = false;
     }
   }
+
+  async function fetchCatFact() {
+    catLoading.value = true;
+    error.value = '';
+
+    try {
+      const bffUrl = import.meta.env.VITE_BFF_URL || 'http://localhost:9003';
+      const response = await fetch(`${bffUrl}/api/cat-fact`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch cat fact');
+      }
+      const responseData = await response.json();
+      catFact.value = responseData.data[0];
+    } catch (err) {
+      error.value = 'Ett fel uppstod vid hämtning av kattfakta';
+      console.error(err);
+    } finally {
+      catLoading.value = false;
+    }
+  }
 </script>
 
 <template>
@@ -40,10 +63,13 @@
       <p>Räknare: {{ count }}</p>
       <p>|</p>
       <p>Att göra: {{ capitalizeFirstLetter(toDoTitle) }}</p>
+      <p>|</p>
+      <p>Kattfakta: {{ catFact }}</p>
     </div>
     <div>
       <FButton @click="productStore.increaseCount">Öka räknare</FButton>
       <FButton @click="fetchTestData" :disabled="loading">Hämta Att-göra</FButton>
+      <FButton @click="fetchCatFact" :disabled="catLoading">Hämta Kattfakta</FButton>
     </div>
   </div>
 </template>
