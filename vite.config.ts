@@ -52,7 +52,7 @@ export default defineConfig({
       output: {
         assetFileNames: (assetInfo) => {
           if (assetInfo.name?.endsWith(".css")) {
-            return "assets/exampleComponent.css";
+            return "exampleComponent.css";
           }
           return assetInfo.name ?? "assets/[name][extname]";
         },
