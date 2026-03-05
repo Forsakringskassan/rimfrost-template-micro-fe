@@ -13,12 +13,12 @@ export default defineConfig({
     vue(),
     vueDevTools(),
     federation({
-      name: "remote_app",
+      name: "remoteApp",
       filename: "remoteEntry.js",
       exposes: {
-        "./ExempelKomponent": "./src/components/ExempelKomponent.vue",
+        "./ExampleComponent": "./src/components/ExampleComponent.vue",
       },
-      shared: ["vue", "pinia"],
+      shared: ["vue", "@fkui/vue", "pinia"],
     }),
   ],
   resolve: {
@@ -46,13 +46,13 @@ export default defineConfig({
     lib: {
       formats: ["es"],
       entry: resolve(__dirname, "src/main.ts"),
-      name: "exempelKomponent",
+      name: "exampleComponent",
     },
     rollupOptions: {
       output: {
         assetFileNames: (assetInfo) => {
           if (assetInfo.name?.endsWith(".css")) {
-            return "assets/exempelKomponent.css";
+            return "assets/exampleComponent.css";
           }
           return assetInfo.name ?? "assets/[name][extname]";
         },

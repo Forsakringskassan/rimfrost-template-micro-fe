@@ -5,8 +5,8 @@
   "type": "module",
   "exports": {
     ".": {
-      "import": "./dist/exempelKomponent.js",
-      "style": "./dist/exempelKomponent.css"
+      "import": "./dist/exampleComponent.js",
+      "style": "./dist/exampleComponent.css"
     }
   },
   "scripts": {
