@@ -5,36 +5,10 @@
 
   const productStore = useProductStore();
   const count = computed(() => productStore.count);
-
-  const toDoTitle = ref('');
-  const loading = ref(false);
   const error = ref('');
 
   const catFact = ref('');
   const catLoading = ref(false);
-
-  function capitalizeFirstLetter(str: string): string {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  }
-  
-  async function fetchTestData() {
-    loading.value = true;
-    error.value = '';
-
-    try {
-      const response = await fetch('https://jsonplaceholder.typicode.com/todos/1');
-      if (!response.ok) {
-        throw new Error('Failed to fetch');
-      }
-      const responseData = await response.json();
-      toDoTitle.value = responseData.title
-    } catch (err) {
-      error.value = 'Ett fel uppstod vid hämtning av datan';
-      console.error(err);
-    } finally {
-      loading.value = false;
-    }
-  }
 
   async function fetchCatFact() {
     catLoading.value = true;
@@ -59,16 +33,10 @@
 
 <template>
   <div class="container">
-    <div>
       <p>Räknare: {{ count }}</p>
-      <p>|</p>
-      <p>Att göra: {{ capitalizeFirstLetter(toDoTitle) }}</p>
-      <p>|</p>
       <p>Kattfakta: {{ catFact }}</p>
-    </div>
     <div>
-      <FButton @click="productStore.increaseCount">Öka räknare</FButton>
-      <FButton @click="fetchTestData" :disabled="loading">Hämta Att-göra</FButton>
+      <FButton @click="productStore.increaseCount" style="margin-right: 0.5rem;">Öka räknare</FButton>
       <FButton @click="fetchCatFact" :disabled="catLoading">Hämta Kattfakta</FButton>
     </div>
   </div>

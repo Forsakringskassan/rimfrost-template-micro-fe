@@ -13,7 +13,7 @@ export default defineConfig({
     vue(),
     vueDevTools(),
     federation({
-      name: "remoteApp",
+      name: "remoteExample",
       filename: "remoteEntry.js",
       exposes: {
         "./ExampleComponent": "./src/components/ExampleComponent.vue",

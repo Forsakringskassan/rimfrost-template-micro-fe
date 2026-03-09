@@ -77,7 +77,7 @@ The Rimfrost system uses a **micro-frontend architecture** where the host applic
 ### Data Flow
 
 1. **Host loads your component**: User selects a task, host dynamically imports your component via Module Federation
-2. **Component receives props**: Your component receives `kundbehovsflodeId` (customer flow ID) and other task context
+2. **Component receives props**: Your component receives `handlaggningId` (customer flow ID) and other task context
 3. **Component fetches data**: Calls your BFF endpoint with the task ID
 4. **BFF communicates**: Your BFF handles backend communication, error handling, and mock data fallback
 5. **Component displays UI**: Renders the task-specific interface using received data
@@ -159,7 +159,7 @@ src/
 ```vue
 <script setup lang="ts">
 const props = defineProps<{
-  kundbehovsflodeId: string;  // Customer flow ID from task
+  handlaggningId: string;  // Customer flow ID from task
   regeltyp?: string;           // Rule type (optional)
 }>();
 </script>
@@ -269,7 +269,7 @@ shared: [
 
 3. **Use components in App.vue or other components**:
    ```vue
-   <MyTaskComponent :kundbehovsflodeId="props.kundbehovsflodeId" />
+   <MyTaskComponent :handlaggningId="props.handlaggningId" />
    ```
 
 ### Fetching Data from BFF
@@ -396,7 +396,7 @@ For runtime environment configuration:
      "id": "task-123",
      "title": "Task Title",
      "url": "your-route-key",
-     "kundbehovsflodeId": "flow-456",
+     "handlaggningId": "flow-456",
      "regeltyp": "your-rule-type"
    }
    ```
@@ -404,13 +404,13 @@ For runtime environment configuration:
 3. **Host loads your component dynamically**:
    ```typescript
    const remoteComponent = await loadRemoteModule(task.url);
-   // Host renders: <remoteComponent :kundbehovsflodeId="task.kundbehovsflodeId" />
+   // Host renders: <remoteComponent :handlaggningId="task.handlaggningId" />
    ```
 
 ### Communication between Host and Micro Frontend
 
 **Props (from host to micro frontend)**:
-- `kundbehovsflodeId` - The customer flow ID for the task
+- `handlaggningId` - The customer flow ID for the task
 - `regeltyp` - The rule type (from task data)
 - Any other custom props the host decides to pass
 
@@ -465,7 +465,7 @@ Here's a minimal example to get you started:
    import { FButton, FInput } from '@fkui/vue';
    
    const props = defineProps<{
-     kundbehovsflodeId: string;
+     handlaggningId: string;
    }>();
    
    const taskData = ref(null);
@@ -477,7 +477,7 @@ Here's a minimal example to get you started:
      try {
        const bffUrl = import.meta.env.VITE_BFF_URL || 'http://localhost:9002';
        const response = await fetch(
-         `${bffUrl}/api/regel/my-task/${props.kundbehovsflodeId}`
+         `${bffUrl}/api/regel/my-task/${props.handlaggningId}`
        );
        taskData.value = await response.json();
      } catch (err) {
