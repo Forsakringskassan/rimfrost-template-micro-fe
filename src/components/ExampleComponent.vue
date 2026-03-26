@@ -2,6 +2,7 @@
   import { computed, ref } from 'vue';
   import { useProductStore } from '../stores/ExampleStore';
   import { FButton } from '@fkui/vue';
+  import ProgressBar from './ProgressBar.vue';
 
   const productStore = useProductStore();
   const count = computed(() => productStore.count);
@@ -33,6 +34,7 @@
 
 <template>
   <div class="container">
+      <ProgressBar />
       <p>Räknare: {{ count }}</p>
       <p>Kattfakta: {{ catFact }}</p>
     <div>
