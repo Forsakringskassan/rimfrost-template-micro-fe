@@ -1,12 +1,13 @@
 <script setup>
 import { ref } from 'vue';
 
+// Add steps through props in BFF
 const totalSteps = ref(5);
 const currentStep = ref(3);
 const labels = ref(['Yrkande skapas', 'Maskinell handläggning', 'Manuell handläggning', 'Bekräfta beslut', 'Meddela beslut']);
 const tooltips = ref(['Tooltip for Step 1', 'Tooltip for Step 2', 'Tooltip for Step 3', 'Tooltip for Step 4', 'Tooltip for Step 5']);
 
-const getStepClass = (step) => {
+function getStepClass(step) {
   if (step < currentStep.value) return 'completed';
   if (step === currentStep.value) return 'current';
   return 'future';
