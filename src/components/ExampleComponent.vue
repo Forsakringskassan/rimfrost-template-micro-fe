@@ -11,6 +11,18 @@
   const catFact = ref('');
   const catLoading = ref(false);
 
+  const stepsInformation = {
+    totalSteps: 5,
+    currentStep: 3,
+    steps: [
+      { label: 'Yrkande skapas', tooltip: 'Yrkandet har skapats och väntar på maskinell handläggning.' },
+      { label: 'Maskinell handläggning', tooltip: 'Yrkandet genomgår maskinell handläggning.' },
+      { label: 'Manuell handläggning', tooltip: 'Yrkandet genomgår manuell handläggning.' },
+      { label: 'Bekräfta beslut', tooltip: 'Beslutet är klart och väntar på bekräftelse.' },
+      { label: 'Meddela beslut', tooltip: 'Beslutet har bekräftats och meddelats till berörda parter.' }
+    ]
+  }
+
   async function fetchCatFact() {
     catLoading.value = true;
     error.value = '';
@@ -34,7 +46,7 @@
 
 <template>
   <div class="container">
-      <ProgressBar />
+      <ProgressBar :steps-information="stepsInformation" />
       <p>Räknare: {{ count }}</p>
       <p>Kattfakta: {{ catFact }}</p>
     <div>
