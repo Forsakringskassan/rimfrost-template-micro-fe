@@ -1,15 +1,26 @@
-<script setup>
-import { ref } from 'vue';
+<script setup lang="ts">
+interface SingleStep {
+  label: string;
+  tooltip: string;
+}
 
-// Add steps through props in BFF
-const totalSteps = ref(5);
-const currentStep = ref(3);
-const labels = ref(['Yrkande skapas', 'Maskinell handläggning', 'Manuell handläggning', 'Bekräfta beslut', 'Meddela beslut']);
-const tooltips = ref(['Tooltip for Step 1', 'Tooltip for Step 2', 'Tooltip for Step 3', 'Tooltip for Step 4', 'Tooltip for Step 5']);
+interface StepsInformation {
+  currentStep: number;
+  steps: SingleStep[];
+}
 
-function getStepClass(step) {
-  if (step < currentStep.value) return 'completed';
-  if (step === currentStep.value) return 'current';
+const { stepsInformation } = defineProps<{
+  stepsInformation: StepsInformation;
+}>();
+
+const totalSteps = stepsInformation.steps.length;
+const currentStep = stepsInformation.currentStep;
+const labels = stepsInformation.steps.map(step => step.label);
+const tooltips = stepsInformation.steps.map(step => step.tooltip);
+
+function getStepClass(step: number) {
+  if (step < currentStep) return 'completed';
+  if (step === currentStep) return 'current';
   return 'future';
 };
 </script>
