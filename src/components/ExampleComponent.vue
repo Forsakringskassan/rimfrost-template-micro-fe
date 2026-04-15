@@ -1,15 +1,15 @@
 <script setup lang="ts">
-  import { computed, ref } from 'vue';
+  import { computed } from 'vue';
   import { useProductStore } from '../stores/ExampleStore';
   import { FButton } from '@fkui/vue';
   import ProgressBar from './ProgressBar.vue';
 
+  const { handlaggningId } = defineProps<{
+    handlaggningId: string;
+  }>();
+
   const productStore = useProductStore();
   const count = computed(() => productStore.count);
-  const error = ref('');
-
-  const catFact = ref('');
-  const catLoading = ref(false);
 
   const stepsInformation = {
     totalSteps: 5,
@@ -22,36 +22,15 @@
       { label: 'Meddela beslut', tooltip: 'Beslutet har bekräftats och meddelats till berörda parter.' }
     ]
   }
-
-  async function fetchCatFact() {
-    catLoading.value = true;
-    error.value = '';
-
-    try {
-      const bffUrl = import.meta.env.VITE_BFF_URL || 'http://localhost:9003';
-      const response = await fetch(`${bffUrl}/api/cat-fact`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch cat fact');
-      }
-      const responseData = await response.json();
-      catFact.value = responseData.data[0];
-    } catch (err) {
-      error.value = 'Ett fel uppstod vid hämtning av kattfakta';
-      console.error(err);
-    } finally {
-      catLoading.value = false;
-    }
-  }
 </script>
 
 <template>
   <div class="container">
       <ProgressBar :steps-information="stepsInformation" />
+      <h2>Handläggnings-ID: {{ handlaggningId }}</h2>
       <p>Räknare: {{ count }}</p>
-      <p>Kattfakta: {{ catFact }}</p>
     <div>
       <FButton @click="productStore.increaseCount" style="margin-right: 0.5rem;">Öka räknare</FButton>
-      <FButton @click="fetchCatFact" :disabled="catLoading">Hämta Kattfakta</FButton>
     </div>
   </div>
 </template>
