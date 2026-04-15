@@ -1,16 +1,22 @@
 <script setup lang="ts">
-  import { computed, ref } from 'vue';
+  import { computed } from 'vue';
   import { useProductStore } from '../stores/ExampleStore';
   import { FButton } from '@fkui/vue';
   import ProgressBar from './ProgressBar.vue';
 
+  const { handlaggningId } = defineProps<{
+    handlaggningId: string;
+  }>();
+
   const productStore = useProductStore();
   const count = computed(() => productStore.count);
-  const error = ref('');
 
+<<<<<<< Updated upstream
   const catFact = ref('');
   const catLoading = ref(false);
 
+=======
+>>>>>>> Stashed changes
   const stepsInformation = {
     totalSteps: 5,
     currentStep: 3,
@@ -21,6 +27,7 @@
       { label: 'Bekräfta beslut', tooltip: 'Beslutet är klart och väntar på bekräftelse.' },
       { label: 'Meddela beslut', tooltip: 'Beslutet har bekräftats och meddelats till berörda parter.' }
     ]
+<<<<<<< Updated upstream
   }
 
   async function fetchCatFact() {
@@ -41,17 +48,21 @@
     } finally {
       catLoading.value = false;
     }
+=======
+>>>>>>> Stashed changes
   }
 </script>
 
 <template>
   <div class="container">
       <ProgressBar :steps-information="stepsInformation" />
+<<<<<<< Updated upstream
+=======
+      <h2>Handläggnings-ID: {{ handlaggningId }}</h2>
+>>>>>>> Stashed changes
       <p>Räknare: {{ count }}</p>
-      <p>Kattfakta: {{ catFact }}</p>
     <div>
       <FButton @click="productStore.increaseCount" style="margin-right: 0.5rem;">Öka räknare</FButton>
-      <FButton @click="fetchCatFact" :disabled="catLoading">Hämta Kattfakta</FButton>
     </div>
   </div>
 </template>

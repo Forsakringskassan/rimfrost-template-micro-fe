@@ -2,15 +2,15 @@
     import ExampleComponent from './components/ExampleComponent.vue';
 
     const props = defineProps<{
-        exampleProp: string;
+        handlaggningId: string;
     }>();
 
-    const exampleProp = props.exampleProp || "This is an example prop";
+    const handlaggningId = props.handlaggningId || import.meta.env.VITE_DEV_HANDLAGGNING_ID || 'Ingen handläggnings-ID angiven';
 </script>
 
 <template>
     <div>
-        <ExampleComponent :exampleProp="exampleProp" />
+        <ExampleComponent :handlaggningId="handlaggningId" />
     </div>
 </template>
 
