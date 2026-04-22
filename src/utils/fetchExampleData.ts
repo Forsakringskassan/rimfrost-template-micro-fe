@@ -1,8 +1,9 @@
+import { env } from "../config/env";
 import { useProductStore } from "../stores/ExampleStore";
 
 export async function fetchExampleData(handlaggningId: string) {
     const store = useProductStore();
-    const bffUrl = import.meta.env.VITE_BFF_URL || "http://localhost:9009";
+    const bffUrl = env.bffUrl;
     
     try {
         const response = await fetch(`${bffUrl}/api/task/${handlaggningId}`);

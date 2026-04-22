@@ -1,3 +1,4 @@
+import { env } from "../config/env";
 import { useProductStore } from "../stores/ExampleStore";
 
 export async function fetchUppgiftsbeskrivning() {
@@ -5,7 +6,7 @@ export async function fetchUppgiftsbeskrivning() {
   store.setDescriptionLoading(true);
 
   try {
-    const url = `${import.meta.env.VITE_BFF_URL}/api/uppgiftsbeskrivning`;
+    const url = `${env.bffUrl}/api/uppgiftsbeskrivning`;
     const response = await fetch(url);
 
     if (!response.ok) {
