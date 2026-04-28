@@ -12,12 +12,16 @@ export default defineConfig({
     vue(),
     vueDevTools(),
     federation({
-      name: "remoteExample",
+      name: "microFeTemplateApp",
       filename: "remoteEntry.js",
       exposes: {
         "./ExampleComponent": "./src/components/ExampleComponent.vue",
       },
-      shared: ["vue", "@fkui/vue", "pinia"],
+      shared: {
+        vue: { requiredVersion: "^3.5.24" },
+        "@fkui/vue": { requiredVersion: "^6.26.0" },
+        pinia: { requiredVersion: "^3.0.4" },
+      },
     }),
   ],
   resolve: {
@@ -40,7 +44,7 @@ export default defineConfig({
     }},
     port: process.env.VITE_APP_PORT_DEV ? parseInt(process.env.VITE_APP_PORT_DEV) : 3038,
   },
-  define: { "process.env": '"production"' },
+  define: { "process.env.NODE_ENV": '"production"' },
   build: {
     cssCodeSplit: false,
     lib: {

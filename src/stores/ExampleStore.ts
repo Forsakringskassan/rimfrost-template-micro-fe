@@ -1,10 +1,14 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 
+interface TaskData {
+  [key: string]: unknown;
+}
+
 export const useProductStore = defineStore('ExampleStore', () => {
   const count = ref(0);
   // Update with types as needed
-  const task = ref<unknown>(null);
+  const task = ref<TaskData | null>(null);
   const loading = ref(false);
   const uppgiftsbeskrivning = ref("");
 
