@@ -6,7 +6,11 @@ export async function fetchExampleData(handlaggningId: string) {
     const bffUrl = env.bffUrl;
     
     try {
-        const response = await fetch(`${bffUrl}/api/task/${handlaggningId}`);
+        const response = await fetch(`${bffUrl}/api/task`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ handlaggningId }),
+        });
         const contentType = response.headers.get("Content-Type") || "";
 
         if (!response.ok) {
