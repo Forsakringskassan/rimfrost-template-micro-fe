@@ -34,6 +34,79 @@ This template is designed to help you quickly create micro frontends for Rimfros
 
 ## Architecture
 
+### Platform Architecture
+
+The Rimfrost platform is built around a **host + remotes** micro-frontend model. The portal acts as the shell — it authenticates the user, fetches the task queue, and dynamically loads the right micro frontend for whichever task the user picks. Each micro frontend ships alongside its own dedicated BFF, making each task type independently deployable and maintainable.
+
+```mermaid
+graph TB
+    subgraph Browser["Browser — Vue 3 + Module Federation"]
+        Portal["rimfrost-portal-handlaggare"]
+        MFE1["MFE: rtf-manuell-fe"]
+        MFE2["MFE: bekraftabeslut-fe"]
+        MFEN["MFE: your-fe  ← this template"]
+    end
+
+    subgraph BFFLayer["BFF Layer — Node.js / Express"]
+        PortalBFF["rimfrost-portal-bff"]
+        BFF1["rtf-manuell-bff"]
+        BFF2["bekraftabeslut-bff"]
+        BFFN["your-bff  ← bff template"]
+    end
+
+    subgraph Backend["Backend Services — Java / Spring"]
+        Handlaggning["rimfrost-service-handlaggning"]
+        RegelServices["rimfrost-regel-* services"]
+    end
+
+    Portal -->|"1. fetch task list"| PortalBFF
+    PortalBFF -->|"2. GET /tasks/:handlaggarId"| Handlaggning
+    Portal -->|"3. load via Module Federation"| MFE1
+    Portal -->|"3. load via Module Federation"| MFE2
+    Portal -->|"3. load via Module Federation"| MFEN
+    MFE1 -->|"4. HTTP /api"| BFF1
+    MFE2 -->|"4. HTTP /api"| BFF2
+    MFEN -->|"4. HTTP /api"| BFFN
+    BFF1 -->|"5. REST"| RegelServices
+    BFF2 -->|"5. REST"| RegelServices
+    BFFN -->|"5. REST"| RegelServices
+    MFE1 -.->|"6. task-done event"| Portal
+    MFE2 -.->|"6. task-done event"| Portal
+    MFEN -.->|"6. task-done event"| Portal
+```
+
+#### How a task flows through the system
+
+1. **Portal fetches the task queue** — on startup the portal calls the Portal BFF, which retrieves the handläggare's task list from `rimfrost-service-handlaggning`.
+2. **Handläggare picks a task** — the task object carries a `url` field that identifies which micro frontend should handle it.
+3. **MFE loaded at runtime** — the portal looks up `task.url` in `route-manifest.json` to get the remote entry URL, then imports the component via Module Federation. The portal passes `handlaggningId` (and optionally `regeltyp`) as props when it mounts the component. No page navigation happens — the MFE renders inside the portal shell.
+4. **MFE fetches its own data** — the component calls its dedicated BFF to retrieve the task-specific data it needs.
+5. **BFF calls the backend** — the BFF transforms the request, applies business logic, and forwards it to the relevant `rimfrost-regel-*` service.
+6. **Task completed** — when the user submits, the MFE dispatches a `task-done` custom event via `window.dispatchEvent`. The portal catches this, shows a toast notification, and refreshes the task queue.
+
+#### How the route manifest connects everything
+
+`route-manifest.json` in the portal is the only place that needs to know about a micro frontend. It maps a task's `url` value to a Module Federation remote entry:
+
+```
+route-manifest.json
+├── rtf-manuell      → rimfrost-regel-rtf-manuell-fe    + rimfrost-regel-rtf-manuell-bff
+├── bekraftabeslut   → rimfrost-regel-bekraftabeslut-fe  + rimfrost-regel-bekraftabeslut-bff
+└── your-regel       → rimfrost-template-micro-fe        + rimfrost-template-micro-fe-bff
+                                          ↑ this template
+```
+
+The portal discovers your MFE solely through this manifest entry — everything else is loaded at runtime.
+
+#### Why a separate BFF per micro frontend?
+
+- **Isolation** — a breaking change in one regel's backend contract does not affect other MFEs
+- **Right-sized API** — each BFF exposes only the endpoints its own MFE needs
+- **Independent deployment** — MFE and BFF pairs can be released on their own schedule
+- **Dev ergonomics** — start only the BFF you are actively working on; mock-data fallback keeps the rest available locally
+
+---
+
 ### How Micro Frontends Fit In
 
 The Rimfrost system uses a **micro-frontend architecture** where the host application dynamically loads remote applications based on user selections.
@@ -274,11 +347,12 @@ shared: [
 
 ### Fetching Data from BFF
 
-The BFF URL is controlled by the `VITE_BFF_URL` environment variable:
+The BFF URL is read from `src/config/env.ts`, which checks `window._env_` first (container) and falls back to `VITE_BFF_URL` (local dev):
 
 ```typescript
-const bffUrl = import.meta.env.VITE_BFF_URL || 'http://localhost:9002';
-const response = await fetch(`${bffUrl}/api/regel/your-endpoint`);
+import { env } from '../config/env';
+
+const response = await fetch(`${env.bffUrl}/api/regel/your-endpoint`);
 ```
 
 ### Best Practices for Components
@@ -328,16 +402,12 @@ Your micro frontend can be deployed to:
 
 The key requirement is that the `remoteEntry.js` file is accessible at the URL configured in the host's route manifest.
 
-### Environment Variables at Runtime
+### Environment Configuration
 
-For runtime environment configuration:
+Config is split between local development and container deployments. See the [Environment Variables](#environment-variables) section at the bottom for the full reference.
 
-1. **Build-time variables** - Embedded during build using `VITE_*` prefix:
-   ```bash
-   VITE_BFF_URL=https://prod-bff.example.com npm run build
-   ```
-
-2. **Runtime environment file** - Create a `runtime-config.js` in your deployment describing values needed at runtime
+- **Local dev**: `VITE_*` values in `.env` are read by Vite at dev-server startup and baked into the bundle
+- **Containers**: a `runtime-config.js` file is mounted into the container and read by the browser at page load — no rebuild needed
 
 ## Best Practices
 
@@ -463,6 +533,7 @@ Here's a minimal example to get you started:
    <script setup lang="ts">
    import { ref, onMounted } from 'vue';
    import { FButton, FInput } from '@fkui/vue';
+   import { env } from '../config/env';
    
    const props = defineProps<{
      handlaggningId: string;
@@ -475,9 +546,8 @@ Here's a minimal example to get you started:
    async function fetchData() {
      loading.value = true;
      try {
-       const bffUrl = import.meta.env.VITE_BFF_URL || 'http://localhost:9002';
        const response = await fetch(
-         `${bffUrl}/api/regel/my-task/${props.handlaggningId}`
+         `${env.bffUrl}/api/regel/my-task/${props.handlaggningId}`
        );
        taskData.value = await response.json();
      } catch (err) {
@@ -532,6 +602,60 @@ When contributing to this template, please ensure:
 - Components use scoped styles
 - New components are documented
 - Dependencies are listed in Module Federation `shared` array
+
+## Environment Variables
+
+| Variable | Dev (`.env`) | Container (`runtime-config.js`) | Description |
+|---|---|---|---|
+| BFF URL | `VITE_BFF_URL` | `RUNTIME_BFF_URL` | BFF base URL |
+| Dev handler ID | `VITE_DEV_HANDLAGGNING_ID` | — | Fallback `handlaggningId` for standalone dev testing only |
+
+Config is read through `src/config/env.ts`, which checks `window._env_` first (container) then falls back to `import.meta.env.VITE_*` (local dev). Never access `import.meta.env` directly in source files.
+
+## Docker
+
+Mount a `runtime-config.js` file into the container:
+
+```js
+window._env_ = {
+  "RUNTIME_BFF_URL": "https://your-bff.internal.example.com"
+};
+```
+
+```bash
+docker build -t rimfrost-template-micro-fe .
+docker run -p 8080:8080 \
+  -v ./runtime-config.js:/usr/local/apache2/htdocs/runtime-config.js \
+  rimfrost-template-micro-fe
+```
+
+## OpenShift
+
+Create a ConfigMap and mount it with `subPath`:
+
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-app-config
+data:
+  runtime-config.js: |
+    window._env_ = {
+      "RUNTIME_BFF_URL": "https://your-bff.internal.example.com"
+    };
+```
+
+```yaml
+# In your Deployment:
+volumeMounts:
+  - name: runtime-config
+    mountPath: /usr/local/apache2/htdocs/runtime-config.js
+    subPath: runtime-config.js
+volumes:
+  - name: runtime-config
+    configMap:
+      name: my-app-config
+```
 
 ## License
 
