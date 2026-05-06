@@ -7,9 +7,6 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-.env
-.env.production
-
 node_modules
 dist
 dist-ssr
@@ -25,3 +22,9 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+
+.__mf__temp
+.__mf__temp*
+
+.env

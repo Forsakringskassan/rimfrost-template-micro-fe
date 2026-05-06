@@ -1,19 +1,19 @@
 {
   "name": "exempel-micro-frontend",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "exports": {
     ".": {
-      "import": "./dist/exempelKomponent.js",
-      "style": "./dist/exempelKomponent.css"
+      "import": "./dist/exampleComponent.js",
+      "style": "./dist/assets/exampleComponent.css"
     }
   },
   "scripts": {
-    "dev": "vite --port 3033 --strictPort",
+    "dev": "vite --port 3038 --strictPort",
     "build": "vue-tsc -b && vite build",
-    "preview": "vite preview --port 3033 --strictPort",
-    "serve": "vite preview --port 3033 --strictPort"
+    "preview": "vue-tsc -b && vite build && vite preview --port 3039 --strictPort",
+    "serve": "vite preview --port 3039 --strictPort"
   },
   "dependencies": {
     "@fkui/date": "^6.26.0",
