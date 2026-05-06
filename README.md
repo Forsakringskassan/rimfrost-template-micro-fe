@@ -279,7 +279,13 @@ federation({
   exposes: {
     "./ExampleComponent": "./src/components/ExampleComponent.vue",
   },
-  shared: ["vue", "@fkui/vue", "pinia"],  // Libraries shared with host
+  manifest: true,                 // Generates mf-manifest.json for runtime loading
+  publicPath: "auto",             // Resolves asset URLs relative to mf-manifest.json
+  shared: {
+    vue: { singleton: true, requiredVersion: "^3.5.0" },
+    "@fkui/vue": { singleton: true, requiredVersion: "^6.0.0" },
+    pinia: { singleton: true, requiredVersion: "^3.0.0" },
+  },
 }),
 ```
 
@@ -309,17 +315,17 @@ To expose a component for the host to use:
 
 ### Shared Dependencies
 
-Libraries listed under `shared` are shared between the host and your micro frontend. This reduces bundle size and prevents duplicate code:
+Libraries listed under `shared` are shared between the host and your micro frontend. This reduces bundle size and prevents duplicate instances:
 
 ```typescript
-shared: [
-  "vue",           // Core Vue library
-  "@fkui/vue",     // FKUI components (avoid duplication)
-  "pinia",         // State management
-]
+shared: {
+  vue: { singleton: true, requiredVersion: "^3.5.0" },
+  "@fkui/vue": { singleton: true, requiredVersion: "^6.0.0" },
+  pinia: { singleton: true, requiredVersion: "^3.0.0" },
+}
 ```
 
-**Important**: Always add any major dependencies used in exposed components to the `shared` array.
+`singleton: true` ensures only one instance is loaded even if both host and remote declare the same dependency. **Always add major dependencies used in exposed components to the `shared` object.**
 
 ## Development
 
@@ -400,7 +406,7 @@ Your micro frontend can be deployed to:
 - **CDN** (CloudFront, Akamai, etc.)
 - **Container services** (Docker, Kubernetes, etc.)
 
-The key requirement is that the `remoteEntry.js` file is accessible at the URL configured in the host's route manifest.
+The key requirement is that `mf-manifest.json` (and the assets it references) are accessible at the URL configured in the host's `route-manifest.json`.
 
 ### Environment Configuration
 
@@ -451,14 +457,15 @@ Config is split between local development and container deployments. See the [En
    {
      "routes": {
        "your-route-key": {
-         "scope": "@your-scope/remote-app",
-         "devEntry": "http://localhost:3033/remoteEntry.js",
-         "prodEntry": "https://yourdomain.com/remoteEntry.js",
-         "module": "./YourMainComponent"
+         "scope": "yourRemoteApp",
+         "module": "YourMainComponent",
+         "devEntry": "http://localhost:YOUR_PORT/mf-manifest.json",
+         "prodEntry": "https://yourdomain.com/mf-manifest.json"
        }
      }
    }
    ```
+   This is the **only** change needed in the portal — no rebuild required.
 
 2. **Task data includes your route key**:
    ```json
@@ -498,10 +505,10 @@ If needed, your micro frontend can access the host's Pinia stores (since Pinia i
 
 ### Module Federation Not Loading
 
-**Problem**: `remoteEntry.js` not found
-- Ensure `npm run build` completed successfully
-- Verify the URL in route-manifest.json is correct
-- Check that the production deployment is accessible
+**Problem**: `mf-manifest.json` not accessible
+- In dev: ensure the remote dev server is running (`npm run dev`) — no build needed
+- Verify the URL in `route-manifest.json` matches the remote's host and port
+- In production: check that the deployed `mf-manifest.json` is publicly accessible at the configured `prodEntry` URL
 
 ### Styles Not Applying
 
@@ -593,7 +600,7 @@ Here's a minimal example to get you started:
    npm run dev
    ```
 
-4. **Configure in host's route-manifest.json** to load this component
+4. **Add an entry to the portal's `route-manifest.json`** pointing to this app's `mf-manifest.json`
 
 ## Contributing
 
