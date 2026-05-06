@@ -79,24 +79,24 @@ graph TB
 
 1. **Portal fetches the task queue** — on startup the portal calls the Portal BFF, which retrieves the handläggare's task list from `rimfrost-service-handlaggning`.
 2. **Handläggare picks a task** — the task object carries a `url` field that identifies which micro frontend should handle it.
-3. **MFE loaded at runtime** — the portal looks up `task.url` in `route-manifest.json` to get the remote entry URL, then imports the component via Module Federation. The portal passes `handlaggningId` (and optionally `regeltyp`) as props when it mounts the component. No page navigation happens — the MFE renders inside the portal shell.
+3. **MFE loaded at runtime** — the portal fetches the remote registry from Portal BFF (`GET /api/route-manifest`) and looks up `task.url` to get the remote entry URL, then imports the component via Module Federation. The portal passes `handlaggningId` (and optionally `regeltyp`) as props when it mounts the component. No page navigation happens — the MFE renders inside the portal shell.
 4. **MFE fetches its own data** — the component calls its dedicated BFF to retrieve the task-specific data it needs.
 5. **BFF calls the backend** — the BFF transforms the request, applies business logic, and forwards it to the relevant `rimfrost-regel-*` service.
 6. **Task completed** — when the user submits, the MFE dispatches a `task-done` custom event via `window.dispatchEvent`. The portal catches this, shows a toast notification, and refreshes the task queue.
 
 #### How the route manifest connects everything
 
-`route-manifest.json` in the portal is the only place that needs to know about a micro frontend. It maps a task's `url` value to a Module Federation remote entry:
+`remotes.json` in `rimfrost-portal-bff` (or the Kubernetes ConfigMap it points to) is the only place that needs to know about a micro frontend. It maps a task's `url` value to a Module Federation remote entry. The portal fetches this registry from the BFF at runtime — no rebuild of the portal is required when you add or change an entry.
 
 ```
-route-manifest.json
+remotes.json (in rimfrost-portal-bff)
 ├── rtf-manuell      → rimfrost-regel-rtf-manuell-fe    + rimfrost-regel-rtf-manuell-bff
 ├── bekraftabeslut   → rimfrost-regel-bekraftabeslut-fe  + rimfrost-regel-bekraftabeslut-bff
 └── your-regel       → rimfrost-template-micro-fe        + rimfrost-template-micro-fe-bff
                                           ↑ this template
 ```
 
-The portal discovers your MFE solely through this manifest entry — everything else is loaded at runtime.
+The portal discovers your MFE solely through this registry entry — everything else is loaded at runtime.
 
 #### Why a separate BFF per micro frontend?
 
@@ -452,7 +452,7 @@ Config is split between local development and container deployments. See the [En
 
 ### Steps for Host to Load Your Micro Frontend
 
-1. **Host adds entry to `route-manifest.json`**:
+1. **Add an entry to `remotes.json` in `rimfrost-portal-bff`**:
    ```json
    {
      "routes": {
@@ -465,7 +465,7 @@ Config is split between local development and container deployments. See the [En
      }
    }
    ```
-   This is the **only** change needed in the portal — no rebuild required.
+   This is the **only** change needed to register your micro frontend — no rebuild of the portal or BFF is required. In production, `remotes.json` is a Kubernetes ConfigMap that can be updated live.
 
 2. **Task data includes your route key**:
    ```json
@@ -600,7 +600,7 @@ Here's a minimal example to get you started:
    npm run dev
    ```
 
-4. **Add an entry to the portal's `route-manifest.json`** pointing to this app's `mf-manifest.json`
+4. **Add an entry to `remotes.json` in `rimfrost-portal-bff`** pointing to this app's `mf-manifest.json`
 
 ## Contributing
 
