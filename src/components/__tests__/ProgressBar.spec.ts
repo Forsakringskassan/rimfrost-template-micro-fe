@@ -15,7 +15,7 @@ function mountProgressBar(currentStep: number) {
 }
 
 function stepClasses(wrapper: ReturnType<typeof mount>, stepIndex: number) {
-  return wrapper.findAll(".step")[stepIndex].classes();
+  return wrapper.findAll(".step").at(stepIndex)!.classes();
 }
 
 describe("ProgressBar — getStepClass", () => {
