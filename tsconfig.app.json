@@ -20,5 +20,6 @@
     "src/**/*.tsx",
     "src/**/*.vue",
     "components/VisaFolkbokföring.vue"
-  ]
+  ],
+  "exclude": ["src/**/*.spec.ts", "src/**/*.test.ts"]
 }
