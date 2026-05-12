@@ -51,6 +51,7 @@ export default defineConfig({
       "Access-Control-Allow-Origin": "*",
     },
   },
+  base: "./",
   build: {
     target: "esnext",
     cssCodeSplit: false,
