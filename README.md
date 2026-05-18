@@ -10,6 +10,7 @@ A template project for creating micro frontends in the Rimfrost task management 
 - [Project Structure](#project-structure)
 - [Module Federation Setup](#module-federation-setup)
 - [Development](#development)
+- [Testing](#testing)
 - [Building & Deployment](#building--deployment)
 - [Best Practices](#best-practices)
 - [Integration with Host](#integration-with-host)
@@ -384,6 +385,46 @@ const response = await fetch(`${env.bffUrl}/api/regel/your-endpoint`);
 4. **Handle errors gracefully** - Always catch and display errors to users
 
 5. **Use FKUI components** - Maintain consistency with Försäkringskassan's design system
+
+## Testing
+
+Unit tests are written with [Vitest](https://vitest.dev/) and [@vue/test-utils](https://test-utils.vuejs.org/), using [happy-dom](https://github.com/capricorn86/happy-dom) as the DOM environment.
+
+```bash
+# Run tests in watch mode
+npm test
+
+# Run once and generate a coverage report (output: coverage/)
+npm run test:coverage
+```
+
+Tests live next to the code they cover in `__tests__` directories:
+
+```
+src/
+├── components/
+│   └── __tests__/
+│       └── ProgressBar.spec.ts       # getStepClass logic via rendered classes
+├── stores/
+│   └── __tests__/
+│       └── ExampleStore.spec.ts      # State mutations and initial state
+└── utils/
+    └── __tests__/
+        ├── fetchExampleData.spec.ts          # POST fetch, error handling, store integration
+        └── fetchUppgiftsbeskrivning.spec.ts  # GET fetch, loading state, JSON validation
+```
+
+### Conventions
+
+- Each store and util gets its own `*.spec.ts` file in a sibling `__tests__/` directory.
+- Store tests call `setActivePinia(createPinia())` in `beforeEach` to isolate state between tests.
+- `fetch` is mocked with `vi.stubGlobal("fetch", ...)` and cleaned up in `afterEach` via `vi.unstubAllGlobals()`.
+- Component logic that cannot be exported directly (e.g. functions inside `<script setup>`) is tested through the rendered DOM using `@vue/test-utils`.
+
+### Config
+
+- `vitest.config.ts` — standalone Vitest config using only the Vue plugin (the Module Federation plugin is excluded as it is incompatible with the test environment).
+- `tsconfig.vitest.json` — extends `tsconfig.app.json` and adds `vitest/globals` types.
 
 ## Building & Deployment
 

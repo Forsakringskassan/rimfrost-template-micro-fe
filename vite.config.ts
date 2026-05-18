@@ -7,7 +7,7 @@ import vueDevTools from "vite-plugin-vue-devtools";
 export default defineConfig({
   plugins: [
     federation({
-      name: "microFeTemplateApp",
+      name: "remoteExample",
       filename: "remoteEntry.js",
       exposes: {
         "./ExampleComponent": "./src/components/ExampleComponent.vue",
