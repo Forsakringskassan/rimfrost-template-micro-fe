@@ -483,7 +483,13 @@ Config is split between local development and container deployments. See the [En
 - ✅ Use environment variables for sensitive URLs (not hardcoded)
 - ✅ Follow CORS best practices with your BFF
 
-### 5. Code Organization
+### 5. Component Size
+
+- ✅ Design to fit within the content area: approximately **80% of viewport width × 90% of viewport height** (`calc(100vw - 260px)` × `calc(100vh - 64px)`)
+- ✅ Use `npm run dev` to check — the dev wrapper shows the portal header and sidenav as visual guides
+- ❌ Don't let your component cause the portal shell to scroll or reflow
+
+### 6. Code Organization
 
 - ✅ Group related components in subdirectories
 - ✅ Keep store logic separate from UI logic
