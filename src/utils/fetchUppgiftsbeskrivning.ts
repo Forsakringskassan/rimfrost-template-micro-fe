@@ -28,6 +28,7 @@ export async function fetchUppgiftsbeskrivning() {
   } catch (error) {
     console.error("Error fetching description:", error);
     store.setUppgiftsbeskrivning("");
+    store.setError("Kunde inte hämta uppgiftsbeskrivningen.");
   } finally {
     store.setDescriptionLoading(false);
   }

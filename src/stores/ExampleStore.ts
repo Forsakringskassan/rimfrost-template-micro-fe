@@ -10,6 +10,7 @@ export const useProductStore = defineStore('ExampleStore', () => {
   // Update with types as needed
   const task = ref<TaskData | null>(null);
   const loading = ref(false);
+  const error = ref<string | null>(null);
   const uppgiftsbeskrivning = ref("");
 
   function increaseCount() {
@@ -24,6 +25,10 @@ export const useProductStore = defineStore('ExampleStore', () => {
     loading.value = isLoading;
   }
 
+  function setError(message: string | null) {
+    error.value = message;
+  }
+
   function setUppgiftsbeskrivning(beskrivning: string) {
     uppgiftsbeskrivning.value = beskrivning;
   }
@@ -32,9 +37,11 @@ export const useProductStore = defineStore('ExampleStore', () => {
     count,
     task,
     loading,
+    error,
     uppgiftsbeskrivning,
     setDescriptionLoading,
     setUppgiftsbeskrivning,
+    setError,
     increaseCount,
     setTask,
   };

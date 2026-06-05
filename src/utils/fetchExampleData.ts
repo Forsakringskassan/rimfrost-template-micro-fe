@@ -25,5 +25,6 @@ export async function fetchExampleData(handlaggningId: string) {
         }
     } catch (error) {
         console.error("Failed to fetch example data:", error);
+        store.setError("Kunde inte hämta uppgiftsdata. Försök igen senare.");
     }
 }
