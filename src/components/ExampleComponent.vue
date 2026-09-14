@@ -10,6 +10,7 @@
 
   const productStore = useProductStore();
   const count = computed(() => productStore.count);
+  const error = computed(() => productStore.error);
 
   const stepsInformation = {
     totalSteps: 5,
@@ -27,6 +28,7 @@
 <template>
   <div class="container">
       <ProgressBar :steps-information="stepsInformation" />
+      <p v-if="error" class="error-message">{{ error }}</p>
       <h2>Handläggnings-ID: {{ handlaggningId }}</h2>
       <p>Räknare: {{ count }}</p>
     <div>
@@ -36,6 +38,11 @@
 </template>
 
 <style scoped>
+.error-message {
+  color: red;
+  font-size: 0.875rem;
+}
+
 .container {
   display: flex;
   flex-direction: column;

@@ -10,6 +10,7 @@ A template project for creating micro frontends in the Rimfrost task management 
 - [Project Structure](#project-structure)
 - [Module Federation Setup](#module-federation-setup)
 - [Development](#development)
+- [Testing](#testing)
 - [Building & Deployment](#building--deployment)
 - [Best Practices](#best-practices)
 - [Integration with Host](#integration-with-host)
@@ -79,24 +80,24 @@ graph TB
 
 1. **Portal fetches the task queue** — on startup the portal calls the Portal BFF, which retrieves the handläggare's task list from `rimfrost-service-handlaggning`.
 2. **Handläggare picks a task** — the task object carries a `url` field that identifies which micro frontend should handle it.
-3. **MFE loaded at runtime** — the portal looks up `task.url` in `route-manifest.json` to get the remote entry URL, then imports the component via Module Federation. The portal passes `handlaggningId` (and optionally `regeltyp`) as props when it mounts the component. No page navigation happens — the MFE renders inside the portal shell.
+3. **MFE loaded at runtime** — the portal fetches the remote registry from Portal BFF (`GET /api/route-manifest`) and looks up `task.url` to get the remote entry URL, then imports the component via Module Federation. The portal passes `handlaggningId` (and optionally `regeltyp`) as props when it mounts the component. No page navigation happens — the MFE renders inside the portal shell.
 4. **MFE fetches its own data** — the component calls its dedicated BFF to retrieve the task-specific data it needs.
 5. **BFF calls the backend** — the BFF transforms the request, applies business logic, and forwards it to the relevant `rimfrost-regel-*` service.
 6. **Task completed** — when the user submits, the MFE dispatches a `task-done` custom event via `window.dispatchEvent`. The portal catches this, shows a toast notification, and refreshes the task queue.
 
 #### How the route manifest connects everything
 
-`route-manifest.json` in the portal is the only place that needs to know about a micro frontend. It maps a task's `url` value to a Module Federation remote entry:
+`remotes.json` in `rimfrost-portal-bff` (or the Kubernetes ConfigMap it points to) is the only place that needs to know about a micro frontend. It maps a task's `url` value to a Module Federation remote entry. The portal fetches this registry from the BFF at runtime — no rebuild of the portal is required when you add or change an entry.
 
 ```
-route-manifest.json
+remotes.json (in rimfrost-portal-bff)
 ├── rtf-manuell      → rimfrost-regel-rtf-manuell-fe    + rimfrost-regel-rtf-manuell-bff
 ├── bekraftabeslut   → rimfrost-regel-bekraftabeslut-fe  + rimfrost-regel-bekraftabeslut-bff
 └── your-regel       → rimfrost-template-micro-fe        + rimfrost-template-micro-fe-bff
                                           ↑ this template
 ```
 
-The portal discovers your MFE solely through this manifest entry — everything else is loaded at runtime.
+The portal discovers your MFE solely through this registry entry — everything else is loaded at runtime.
 
 #### Why a separate BFF per micro frontend?
 
@@ -279,7 +280,13 @@ federation({
   exposes: {
     "./ExampleComponent": "./src/components/ExampleComponent.vue",
   },
-  shared: ["vue", "@fkui/vue", "pinia"],  // Libraries shared with host
+  manifest: true,                 // Generates mf-manifest.json for runtime loading
+  publicPath: "auto",             // Resolves asset URLs relative to mf-manifest.json
+  shared: {
+    vue: { singleton: true, requiredVersion: "^3.5.0" },
+    "@fkui/vue": { singleton: true, requiredVersion: "^6.0.0" },
+    pinia: { singleton: true, requiredVersion: "^3.0.0" },
+  },
 }),
 ```
 
@@ -309,17 +316,17 @@ To expose a component for the host to use:
 
 ### Shared Dependencies
 
-Libraries listed under `shared` are shared between the host and your micro frontend. This reduces bundle size and prevents duplicate code:
+Libraries listed under `shared` are shared between the host and your micro frontend. This reduces bundle size and prevents duplicate instances:
 
 ```typescript
-shared: [
-  "vue",           // Core Vue library
-  "@fkui/vue",     // FKUI components (avoid duplication)
-  "pinia",         // State management
-]
+shared: {
+  vue: { singleton: true, requiredVersion: "^3.5.0" },
+  "@fkui/vue": { singleton: true, requiredVersion: "^6.0.0" },
+  pinia: { singleton: true, requiredVersion: "^3.0.0" },
+}
 ```
 
-**Important**: Always add any major dependencies used in exposed components to the `shared` array.
+`singleton: true` ensures only one instance is loaded even if both host and remote declare the same dependency. **Always add major dependencies used in exposed components to the `shared` object.**
 
 ## Development
 
@@ -379,6 +386,46 @@ const response = await fetch(`${env.bffUrl}/api/regel/your-endpoint`);
 
 5. **Use FKUI components** - Maintain consistency with Försäkringskassan's design system
 
+## Testing
+
+Unit tests are written with [Vitest](https://vitest.dev/) and [@vue/test-utils](https://test-utils.vuejs.org/), using [happy-dom](https://github.com/capricorn86/happy-dom) as the DOM environment.
+
+```bash
+# Run tests in watch mode
+npm test
+
+# Run once and generate a coverage report (output: coverage/)
+npm run test:coverage
+```
+
+Tests live next to the code they cover in `__tests__` directories:
+
+```
+src/
+├── components/
+│   └── __tests__/
+│       └── ProgressBar.spec.ts       # getStepClass logic via rendered classes
+├── stores/
+│   └── __tests__/
+│       └── ExampleStore.spec.ts      # State mutations and initial state
+└── utils/
+    └── __tests__/
+        ├── fetchExampleData.spec.ts          # POST fetch, error handling, store integration
+        └── fetchUppgiftsbeskrivning.spec.ts  # GET fetch, loading state, JSON validation
+```
+
+### Conventions
+
+- Each store and util gets its own `*.spec.ts` file in a sibling `__tests__/` directory.
+- Store tests call `setActivePinia(createPinia())` in `beforeEach` to isolate state between tests.
+- `fetch` is mocked with `vi.stubGlobal("fetch", ...)` and cleaned up in `afterEach` via `vi.unstubAllGlobals()`.
+- Component logic that cannot be exported directly (e.g. functions inside `<script setup>`) is tested through the rendered DOM using `@vue/test-utils`.
+
+### Config
+
+- `vitest.config.ts` — standalone Vitest config using only the Vue plugin (the Module Federation plugin is excluded as it is incompatible with the test environment).
+- `tsconfig.vitest.json` — extends `tsconfig.app.json` and adds `vitest/globals` types.
+
 ## Building & Deployment
 
 ### Build Process
@@ -400,7 +447,7 @@ Your micro frontend can be deployed to:
 - **CDN** (CloudFront, Akamai, etc.)
 - **Container services** (Docker, Kubernetes, etc.)
 
-The key requirement is that the `remoteEntry.js` file is accessible at the URL configured in the host's route manifest.
+The key requirement is that `mf-manifest.json` (and the assets it references) are accessible at the URL configured in the host's `route-manifest.json`.
 
 ### Environment Configuration
 
@@ -436,7 +483,13 @@ Config is split between local development and container deployments. See the [En
 - ✅ Use environment variables for sensitive URLs (not hardcoded)
 - ✅ Follow CORS best practices with your BFF
 
-### 5. Code Organization
+### 5. Component Size
+
+- ✅ Design to fit within the content area: approximately **80% of viewport width × 90% of viewport height** (`calc(100vw - 260px)` × `calc(100vh - 64px)`)
+- ✅ Use `npm run dev` to check — the dev wrapper shows the portal header and sidenav as visual guides
+- ❌ Don't let your component cause the portal shell to scroll or reflow
+
+### 6. Code Organization
 
 - ✅ Group related components in subdirectories
 - ✅ Keep store logic separate from UI logic
@@ -446,19 +499,20 @@ Config is split between local development and container deployments. See the [En
 
 ### Steps for Host to Load Your Micro Frontend
 
-1. **Host adds entry to `route-manifest.json`**:
+1. **Add an entry to `remotes.json` in `rimfrost-portal-bff`**:
    ```json
    {
      "routes": {
        "your-route-key": {
-         "scope": "@your-scope/remote-app",
-         "devEntry": "http://localhost:3033/remoteEntry.js",
-         "prodEntry": "https://yourdomain.com/remoteEntry.js",
-         "module": "./YourMainComponent"
+         "scope": "yourRemoteApp",
+         "module": "YourMainComponent",
+         "devEntry": "http://localhost:YOUR_PORT/mf-manifest.json",
+         "prodEntry": "https://yourdomain.com/mf-manifest.json"
        }
      }
    }
    ```
+   This is the **only** change needed to register your micro frontend — no rebuild of the portal or BFF is required. In production, `remotes.json` is a Kubernetes ConfigMap that can be updated live.
 
 2. **Task data includes your route key**:
    ```json
@@ -498,10 +552,10 @@ If needed, your micro frontend can access the host's Pinia stores (since Pinia i
 
 ### Module Federation Not Loading
 
-**Problem**: `remoteEntry.js` not found
-- Ensure `npm run build` completed successfully
-- Verify the URL in route-manifest.json is correct
-- Check that the production deployment is accessible
+**Problem**: `mf-manifest.json` not accessible
+- In dev: ensure the remote dev server is running (`npm run dev`) — no build needed
+- Verify the URL in `route-manifest.json` matches the remote's host and port
+- In production: check that the deployed `mf-manifest.json` is publicly accessible at the configured `prodEntry` URL
 
 ### Styles Not Applying
 
@@ -593,7 +647,7 @@ Here's a minimal example to get you started:
    npm run dev
    ```
 
-4. **Configure in host's route-manifest.json** to load this component
+4. **Add an entry to `remotes.json` in `rimfrost-portal-bff`** pointing to this app's `mf-manifest.json`
 
 ## Contributing
 
