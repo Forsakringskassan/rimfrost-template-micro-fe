@@ -354,7 +354,7 @@ shared: {
 
 ### Fetching Data from BFF
 
-The BFF URL is read from `src/config/env.ts`, which checks `window._env_` first (container) and falls back to `VITE_BFF_URL` (local dev):
+The BFF URL is read from `src/config/env.ts`, which checks `window.__TEMPLATE_MICRO_FE_ENV__` first (container) and falls back to `VITE_BFF_URL` (local dev):
 
 ```typescript
 import { env } from '../config/env';
@@ -664,14 +664,14 @@ When contributing to this template, please ensure:
 | BFF URL | `VITE_BFF_URL` | `RUNTIME_BFF_URL` | BFF base URL |
 | Dev handler ID | `VITE_DEV_HANDLAGGNING_ID` | — | Fallback `handlaggningId` for standalone dev testing only |
 
-Config is read through `src/config/env.ts`, which checks `window._env_` first (container) then falls back to `import.meta.env.VITE_*` (local dev). Never access `import.meta.env` directly in source files.
+Config is read through `src/config/env.ts`, which checks `window.__TEMPLATE_MICRO_FE_ENV__` first (container) then falls back to `import.meta.env.VITE_*` (local dev). Never access `import.meta.env` directly in source files.
 
 ## Docker
 
 Mount a `runtime-config.js` file into the container:
 
 ```js
-window._env_ = {
+window.__TEMPLATE_MICRO_FE_ENV__ = {
   "RUNTIME_BFF_URL": "https://your-bff.internal.example.com"
 };
 ```
@@ -694,7 +694,7 @@ metadata:
   name: my-app-config
 data:
   runtime-config.js: |
-    window._env_ = {
+    window.__TEMPLATE_MICRO_FE_ENV__ = {
       "RUNTIME_BFF_URL": "https://your-bff.internal.example.com"
     };
 ```
