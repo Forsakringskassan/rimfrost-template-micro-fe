@@ -1,4 +1,4 @@
-import { env } from "../config/env";
+import { env, ensureEnvLoaded } from "../config/env";
 import { useProductStore } from "../stores/ExampleStore";
 
 export async function fetchUppgiftsbeskrivning() {
@@ -6,6 +6,7 @@ export async function fetchUppgiftsbeskrivning() {
   store.setDescriptionLoading(true);
 
   try {
+    await ensureEnvLoaded();
     const url = `${env.bffUrl}/api/uppgiftsbeskrivning`;
     const response = await fetch(url);
 

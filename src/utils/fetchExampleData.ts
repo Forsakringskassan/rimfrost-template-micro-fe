@@ -1,11 +1,12 @@
-import { env } from "../config/env";
+import { env, ensureEnvLoaded } from "../config/env";
 import { useProductStore } from "../stores/ExampleStore";
 
 export async function fetchExampleData(handlaggningId: string) {
     const store = useProductStore();
-    const bffUrl = env.bffUrl;
-    
+
     try {
+        await ensureEnvLoaded();
+        const bffUrl = env.bffUrl;
         const response = await fetch(`${bffUrl}/api/task`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
