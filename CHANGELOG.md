@@ -2,6 +2,21 @@
 
 Changelog of rimfrost-template-micro-fe.
 
+## 2.0.1 (2026-09-17)
+
+### Bug Fixes
+
+-  self-load runtime-config.js when running as a Module Federation remote ([7c361](https://github.com/Forsakringskassan/rimfrost-template-micro-fe/commit/7c3616bc3a6609c) LisaWedin_Ductus)  
+-  namespace the runtime-config global per app ([27922](https://github.com/Forsakringskassan/rimfrost-template-micro-fe/commit/27922f49d15b58f) LisaWedin_Ductus)  
+
+### Other changes
+
+**Update package name and version in package.json**
+
+
+[39343](https://github.com/Forsakringskassan/rimfrost-template-micro-fe/commit/39343a3cdc0b37c) LisaWedin-Ductus *2026-09-15 10:38:17*
+
+
 ## 2.0.0 (2026-09-14)
 
 ### Breaking changes
