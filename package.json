@@ -11,7 +11,7 @@
   },
   "scripts": {
     "dev": "vite --port 3038 --strictPort",
-    "build": "vue-tsc -b && vite build",
+    "build": "vue-tsc -b && vite build && cloneman build -o temp/cloneman",
     "preview": "vue-tsc -b && vite build && vite preview --port 3039 --strictPort",
     "serve": "vite preview --port 3039 --strictPort",
     "test": "vitest",
@@ -35,6 +35,7 @@
     "@vitest/coverage-v8": "^4.1.5",
     "@vue/test-utils": "^2.4.10",
     "@vue/tsconfig": "^0.8.1",
+    "cloneman": "1.17.0",
     "happy-dom": "^20.9.0",
     "sass-embedded": "^1.93.3",
     "typescript": "~5.9.3",
