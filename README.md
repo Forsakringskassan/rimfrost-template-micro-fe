@@ -403,8 +403,9 @@ Tests live next to the code they cover in `__tests__` directories:
 ```
 src/
 ├── components/
-│   └── __tests__/
-│       └── ProgressBar.spec.ts       # getStepClass logic via rendered classes
+│   └── StegIndikator/
+│       └── __tests__/
+│           └── StegIndikator.spec.ts # Step status, details panel, responsive layout
 ├── stores/
 │   └── __tests__/
 │       └── ExampleStore.spec.ts      # State mutations and initial state

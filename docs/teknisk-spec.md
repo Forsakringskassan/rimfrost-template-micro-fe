@@ -12,8 +12,9 @@ kopieras, inte driftsättas som den är.
 src/
 ├── App.vue                  # Fristående dev-skal som simulerar portalens layout
 ├── components/
-│   ├── ExampleComponent.vue   # Exponerad exempelkomponent (den enda federerade modulen)
-│   └── ProgressBar.vue        # Presentationsexempel
+│   ├── ExampleComponent.vue   # Exponerad exempelkomponent
+│   ├── StegIndikator/         # Responsiv stegindikator, används i ExampleComponent
+│   └── StegIndikatorTest.vue  # Exponerad testyta för stegindikatorn
 ├── stores/ExampleStore.ts     # Pinia-exempel
 ├── utils/                     # Exempel på fetch mot BFF, med felhantering
 └── config/env.ts               # Enhetlig läsning av bygg-/körtidskonfiguration

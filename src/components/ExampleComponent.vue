@@ -2,7 +2,7 @@
   import { computed } from 'vue';
   import { useProductStore } from '../stores/ExampleStore';
   import { FButton } from '@fkui/vue';
-  import ProgressBar from './ProgressBar.vue';
+  import { type Steg, StegIndikator } from './StegIndikator';
 
   const { handlaggningId } = defineProps<{
     handlaggningId: string;
@@ -12,22 +12,20 @@
   const count = computed(() => productStore.count);
   const error = computed(() => productStore.error);
 
-  const stepsInformation = {
-    totalSteps: 5,
-    currentStep: 3,
-    steps: [
-      { label: 'Yrkande skapas', tooltip: 'Yrkandet har skapats och väntar på maskinell handläggning.' },
-      { label: 'Maskinell handläggning', tooltip: 'Yrkandet genomgår maskinell handläggning.' },
-      { label: 'Manuell handläggning', tooltip: 'Yrkandet genomgår manuell handläggning.' },
-      { label: 'Bekräfta beslut', tooltip: 'Beslutet är klart och väntar på bekräftelse.' },
-      { label: 'Meddela beslut', tooltip: 'Beslutet har bekräftats och meddelats till berörda parter.' }
-    ]
-  }
+  const steg: Steg[] = [
+    { id: 'yrkande-skapas', rubrik: 'Yrkande skapas', beskrivning: 'Yrkandet har skapats och väntar på maskinell handläggning.' },
+    { id: 'maskinell', rubrik: 'Maskinell handläggning', beskrivning: 'Yrkandet genomgår maskinell handläggning.' },
+    { id: 'manuell', rubrik: 'Manuell handläggning', beskrivning: 'Yrkandet genomgår manuell handläggning.' },
+    { id: 'bekrafta-beslut', rubrik: 'Bekräfta beslut', beskrivning: 'Beslutet är klart och väntar på bekräftelse.' },
+    { id: 'meddela-beslut', rubrik: 'Meddela beslut', beskrivning: 'Beslutet har bekräftats och meddelats till berörda parter.' }
+  ];
+  // Index räknas från 0, så 2 är "Manuell handläggning".
+  const aktivtSteg = 2;
 </script>
 
 <template>
   <div class="container">
-      <ProgressBar :steps-information="stepsInformation" />
+      <StegIndikator :steg="steg" :aktivt-steg="aktivtSteg" etikett="Handläggningens steg" />
       <p v-if="error" class="error-message">{{ error }}</p>
       <h2>Handläggnings-ID: {{ handlaggningId }}</h2>
       <p>Räknare: {{ count }}</p>
