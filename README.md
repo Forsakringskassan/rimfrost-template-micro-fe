@@ -386,6 +386,84 @@ const response = await fetch(`${env.bffUrl}/api/regel/your-endpoint`);
 
 5. **Use FKUI components** - Maintain consistency with Försäkringskassan's design system
 
+### Using the StegIndikator
+
+`StegIndikator` shows the steps of a process, such as the stages of a handläggning. Each step can be pressed to show more information about it. See `ExampleComponent.vue` for a working example, and `StegIndikatorTest.vue` for more variants.
+
+**1. Describe the steps.** Each step is a `Steg` object:
+
+| Field | Required | Description |
+|---|---|---|
+| `id` | Yes | A stable, unique key for the step. |
+| `rubrik` | Yes | Short label shown next to the circle. Keep it to a few words. |
+| `beskrivning` | No | Text shown in the details panel when the step is pressed. |
+| `ikon` | No | Name of an FKUI icon to show in the circle instead of the step number. Only used for the current and upcoming steps, since finished steps always show a check mark. The icon sprite is provided by the host. |
+
+**2. Pass the steps and the current step:**
+
+```vue
+<script setup lang="ts">
+import { type Steg, StegIndikator } from './StegIndikator';
+
+const steg: Steg[] = [
+  { id: 'yrkande', rubrik: 'Yrkande skapas', beskrivning: 'Yrkandet har skapats.' },
+  { id: 'manuell', rubrik: 'Manuell handläggning', beskrivning: 'Yrkandet handläggs manuellt.' },
+  { id: 'beslut', rubrik: 'Bekräfta beslut', beskrivning: 'Beslutet väntar på bekräftelse.' },
+];
+</script>
+
+<template>
+  <StegIndikator :steg="steg" :aktivt-steg="1" etikett="Handläggningens steg" />
+</template>
+```
+
+`aktivtSteg` is the **0-based** index of the step in progress. Steps before it are shown as finished, and steps after it as upcoming. Set it to `steg.length` to show every step as finished.
+
+**Props:**
+
+| Prop | Default | Description |
+|---|---|---|
+| `steg` | required | The steps, in order. There is no limit on how many. |
+| `aktivtSteg` | required | 0-based index of the step in progress. |
+| `etikett` | `"Steg"` | Accessible name for the whole indicator, read by screen readers. |
+| `orientering` | `"auto"` | `"auto"` picks the layout from the available width. `"horisontell"` or `"vertikal"` forces one. |
+| `minStegBredd` | `128` | Minimum width in px each step needs to be shown horizontally. |
+| `kompaktBredd` | `480` | Below this width in px, the details open under the pressed step instead of beside it. |
+
+**3. Optionally, show your own content in the details panel.** The panel always shows the step's `rubrik` and status. Below that it shows `beskrivning`, unless you fill the `detaljer` slot. The slot gets the pressed step, its index and its status (`"klar"`, `"aktiv"` or `"kommande"`):
+
+```vue
+<StegIndikator :steg="steg" :aktivt-steg="aktivtSteg">
+  <template #detaljer="{ steg, status }">
+    <p>{{ steg.beskrivning }}</p>
+    <p v-if="status === 'aktiv'">Det här steget pågår just nu.</p>
+  </template>
+</StegIndikator>
+```
+
+**4. Optionally, control which step is open.** Bind `v-model:valt-steg` to read or set the open step's index. `null` means no panel is open. Without the binding, the component keeps track of this itself.
+
+```vue
+<StegIndikator v-model:valt-steg="valtSteg" :steg="steg" :aktivt-steg="aktivtSteg" />
+```
+
+**Filling it from the BFF.** Map the response to `Steg` objects in a `computed`, so the indicator updates when the data arrives:
+
+```typescript
+const steg = computed<Steg[]>(() =>
+  (store.processSteg ?? []).map((s) => ({
+    id: s.id,
+    rubrik: s.namn,
+    beskrivning: s.beskrivning,
+  })),
+);
+const aktivtSteg = computed(() => store.processSteg?.findIndex((s) => s.pagar) ?? 0);
+```
+
+`processSteg`, `namn` and `pagar` stand in for whatever your BFF returns. Use a stable `id` from the data, not the array index, since Vue uses it as the key when rendering the steps.
+
+**Layout.** The indicator is horizontal when every step gets at least `minStegBredd`. It switches to vertical when the space is narrower or there are too many steps. Vertical mode shows the details to the right of the steps. In very narrow spaces they open under the pressed step. The component fills the width of its parent, so set spacing such as margins where you place it.
+
 ## Testing
 
 Unit tests are written with [Vitest](https://vitest.dev/) and [@vue/test-utils](https://test-utils.vuejs.org/), using [happy-dom](https://github.com/capricorn86/happy-dom) as the DOM environment.
