@@ -25,7 +25,7 @@
 
 <template>
   <div class="container">
-      <StegIndikator :steg="steg" :aktivt-steg="aktivtSteg" etikett="Handläggningens steg" />
+      <StegIndikator class="steg-indikator-exempel" :steg="steg" :aktivt-steg="aktivtSteg" etikett="Handläggningens steg" />
       <p v-if="error" class="error-message">{{ error }}</p>
       <h2>Handläggnings-ID: {{ handlaggningId }}</h2>
       <p>Räknare: {{ count }}</p>
@@ -36,6 +36,10 @@
 </template>
 
 <style scoped>
+.steg-indikator-exempel {
+  margin-top: 1.5rem;
+}
+
 .error-message {
   color: red;
   font-size: 0.875rem;
