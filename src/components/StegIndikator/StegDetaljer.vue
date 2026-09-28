@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { type StegStatus, statusText } from "./steg";
+
 /**
  * Detaljpanelen för ett steg i StegIndikator. Är en egen komponent eftersom
  * den renderas på olika platser beroende på layout.
@@ -8,7 +10,7 @@ defineProps<{
   /** Id för knappen som öppnade panelen. */
   etikettId: string;
   rubrik: string;
-  status: string;
+  status: StegStatus;
   /** Chevron som pekar från steget mot panelen. "ingen" när föräldern ritar den. */
   pil: "ingen" | "hoger" | "ned";
 }>();
@@ -38,7 +40,7 @@ defineEmits<{ stang: [] }>();
     <div class="steg-detaljer__innehall">
       <p class="steg-detaljer__rubrik">
         {{ rubrik }}
-        <span class="steg-detaljer__status">{{ status }}</span>
+        <span class="steg-detaljer__status">{{ statusText[status] }}</span>
       </p>
       <slot></slot>
     </div>

@@ -11,19 +11,7 @@ import {
 } from "vue";
 import { FIcon } from "@fkui/vue";
 import StegDetaljer from "./StegDetaljer.vue";
-
-export type StegStatus = "klar" | "aktiv" | "kommande";
-
-export interface Steg {
-  /** Nyckel för steget **/
-  id: string;
-  /** Kort text under eller bredvid cirkeln. */
-  rubrik: string;
-  /** Visas i detaljpanelen om ingen #detaljer-slot används. */
-  beskrivning?: string;
-  /** FKUI-ikon i cirkeln för aktiva och kommande steg. Stegnumret visas annars. */
-  ikon?: string;
-}
+import { type Steg, type StegStatus, statusText } from "./steg";
 
 /**
  * horisontell: stegen på en rad, panelen under.
@@ -102,12 +90,6 @@ function statusFor(index: number): StegStatus {
   }
   return "kommande";
 }
-
-const statusText: Record<StegStatus, string> = {
-  klar: "Klart",
-  aktiv: "Pågår",
-  kommande: "Kommande",
-};
 
 function knappId(index: number): string {
   return `${baseId}-steg-${index}`;
@@ -242,7 +224,7 @@ watch(
           class="steg-indikator__detaljer"
           :etikett-id="knappId(index)"
           :rubrik="valt.steg.rubrik"
-          :status="statusText[valt.status]"
+          :status="valt.status"
           pil="ned"
           @stang="stang"
         >
@@ -276,7 +258,7 @@ watch(
       class="steg-indikator__detaljer"
       :etikett-id="knappId(valt.index)"
       :rubrik="valt.steg.rubrik"
-      :status="statusText[valt.status]"
+      :status="valt.status"
       :pil="layout === 'vertikal' ? 'hoger' : 'ingen'"
       :style="
         layout === 'vertikal' ? { marginTop: `${panelForskjutning}px` } : {}

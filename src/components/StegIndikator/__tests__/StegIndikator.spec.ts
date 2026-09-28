@@ -1,7 +1,8 @@
 import { nextTick } from "vue";
 import { mount } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import StegIndikator, { type Steg } from "../StegIndikator.vue";
+import StegIndikator from "../StegIndikator.vue";
+import type { Steg } from "../steg";
 
 const steg: Steg[] = [
   { id: "a", rubrik: "Kontakt", beskrivning: "Om kontakt" },
@@ -82,6 +83,8 @@ describe("StegIndikator", () => {
     expect(wrapper.find(".steg-indikator__detaljer").text()).toContain(
       "Om uppgifter",
     );
+    // Steg 2 ligger före det aktiva steget, så panelen visar statustexten "Klart".
+    expect(wrapper.find(".steg-detaljer__status").text()).toBe("Klart");
 
     await button.trigger("click");
     expect(button.attributes("aria-expanded")).toBe("false");
