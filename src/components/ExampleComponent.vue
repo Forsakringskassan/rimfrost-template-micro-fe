@@ -1,8 +1,9 @@
 <script setup lang="ts">
-  import { computed } from 'vue';
+  import { computed, ref } from 'vue';
   import { useProductStore } from '../stores/ExampleStore';
   import { FButton } from '@fkui/vue';
   import { type Steg, StegIndikator } from './StegIndikator';
+  import StegIndikatorTest from './StegIndikatorTest.vue';
 
   const { handlaggningId } = defineProps<{
     handlaggningId: string;
@@ -21,6 +22,8 @@
   ];
   // Index räknas från 0, så 2 är "Manuell handläggning".
   const aktivtSteg = 2;
+
+  const visaStegTest = ref(false);
 </script>
 
 <template>
@@ -29,8 +32,22 @@
       <p v-if="error" class="error-message">{{ error }}</p>
       <h2>Handläggnings-ID: {{ handlaggningId }}</h2>
       <p>Räknare: {{ count }}</p>
-    <div>
+    <div class="knapprad">
       <FButton @click="productStore.increaseCount" style="margin-right: 0.5rem;">Öka räknare</FButton>
+      <!-- Native knapp med FKUI:s klasser: FButton läser sina attribut en gång
+           när den skapas, så aria-expanded skulle aldrig uppdateras. -->
+      <button
+        type="button"
+        class="button button--secondary button--medium"
+        :aria-expanded="visaStegTest"
+        aria-controls="steg-indikator-testyta"
+        @click="visaStegTest = !visaStegTest"
+      >
+        {{ visaStegTest ? 'Dölj' : 'Visa' }} testkomponent för stegindikator
+      </button>
+    </div>
+    <div v-if="visaStegTest" id="steg-indikator-testyta" class="steg-test-yta">
+      <StegIndikatorTest :visa-rubrik="false" />
     </div>
   </div>
 </template>
@@ -49,9 +66,18 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  & div {
+  & .knapprad {
     display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
     gap: 0.75rem;
   }
+}
+
+/* Containern centrerar sitt innehåll, men testytan ska fylla bredden. */
+.steg-test-yta {
+  align-self: stretch;
+  margin-top: 1rem;
+  border-top: 1px solid var(--fkds-color-border-weak, #d1d2d3);
 }
 </style>

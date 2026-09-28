@@ -6,6 +6,9 @@ import { type Steg, StegIndikator } from "./StegIndikator";
 // Testyta för stegindikatorn. Exponeras som egen modul så att portalen kan
 // ladda den via Module Federation.
 
+// visaRubrik: false när testytan bäddas in på en sida som redan har en rubrik.
+withDefaults(defineProps<{ visaRubrik?: boolean }>(), { visaRubrik: true });
+
 const exempelSteg: Steg[] = [
   {
     id: "kontakt",
@@ -65,7 +68,7 @@ function nasta(): void {
 
 <template>
   <div class="steg-test">
-    <h1>Testyta: stegindikator</h1>
+    <h1 v-if="visaRubrik">Testyta: stegindikator</h1>
 
     <section class="steg-test__del">
       <h2 class="h3">Exempel med fyra steg</h2>

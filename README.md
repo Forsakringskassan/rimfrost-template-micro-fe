@@ -388,7 +388,7 @@ const response = await fetch(`${env.bffUrl}/api/regel/your-endpoint`);
 
 ### Using the StegIndikator
 
-`StegIndikator` shows the steps of a process, such as the stages of a handläggning. Each step can be pressed to show more information about it. See `ExampleComponent.vue` for a working example, and `StegIndikatorTest.vue` for more variants.
+`StegIndikator` shows the steps of a process, such as the stages of a handläggning. Each step can be pressed to show more information about it. See `ExampleComponent.vue` for a working example. `StegIndikatorTest.vue` is a test area with more variants, including buttons to add and remove steps and a container you can resize. Open it with the "Visa testkomponent för stegindikator" button in the example component.
 
 **1. Describe the steps.** Each step is a `Steg` object:
 

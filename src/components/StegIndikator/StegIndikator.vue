@@ -15,7 +15,7 @@ import StegDetaljer from "./StegDetaljer.vue";
 export type StegStatus = "klar" | "aktiv" | "kommande";
 
 export interface Steg {
-  /** Stabil nyckel för steget. */
+  /** Nyckel för steget **/
   id: string;
   /** Kort text under eller bredvid cirkeln. */
   rubrik: string;
