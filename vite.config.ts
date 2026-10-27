@@ -11,7 +11,6 @@ export default defineConfig({
       filename: "remoteEntry.js",
       exposes: {
         "./ExampleComponent": "./src/components/ExampleComponent.vue",
-        "./StegIndikatorTest": "./src/components/StegIndikatorTest.vue",
       },
       shared: {
         vue: { singleton: true, requiredVersion: "^3.5.24" },
