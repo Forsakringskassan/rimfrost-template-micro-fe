@@ -679,13 +679,13 @@ window.__TEMPLATE_MICRO_FE_ENV__ = {
 ```bash
 docker build -t rimfrost-template-micro-fe .
 docker run -p 8080:8080 \
-  -v ./runtime-config.js:/usr/local/apache2/htdocs/runtime-config.js \
+  -v ./runtime-config.js:/usr/local/apache2/htdocs/config/runtime-config.js \
   rimfrost-template-micro-fe
 ```
 
 ## OpenShift
 
-Create a ConfigMap and mount it with `subPath`:
+Create a ConfigMap and mount it as the `config/` directory:
 
 ```yaml
 apiVersion: v1
@@ -703,8 +703,7 @@ data:
 # In your Deployment:
 volumeMounts:
   - name: runtime-config
-    mountPath: /usr/local/apache2/htdocs/runtime-config.js
-    subPath: runtime-config.js
+    mountPath: /usr/local/apache2/htdocs/config
 volumes:
   - name: runtime-config
     configMap:
