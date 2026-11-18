@@ -29,7 +29,7 @@
     "vue-router": "^4.6.3"
   },
   "devDependencies": {
-    "@module-federation/vite": "^1.15.2",
+    "@module-federation/vite": "^1.24.1",
     "@types/node": "^24.10.1",
     "@vitejs/plugin-vue": "^6.0.1",
     "@vitest/coverage-v8": "^4.1.5",
