@@ -2,6 +2,33 @@
 
 Changelog of rimfrost-template-micro-fe.
 
+## 2.1.0 (2026-11-21)
+
+### Features
+
+-  remove StegIndikator, the process owns the step view (FKPOC-1176) ([1c5ff](https://github.com/Forsakringskassan/rimfrost-template-micro-fe/commit/1c5ffef4f3f3632) LisaWedin_Ductus)  
+-  show step indicator test area from example component ([0ac9e](https://github.com/Forsakringskassan/rimfrost-template-micro-fe/commit/0ac9ec9ef0919ad) LisaWedin_Ductus)  
+-  replace ProgressBar with StegIndikator in example component ([8327f](https://github.com/Forsakringskassan/rimfrost-template-micro-fe/commit/8327fd027b2a7b1) LisaWedin_Ductus)  
+-  add responsive step indicator with test area ([28141](https://github.com/Forsakringskassan/rimfrost-template-micro-fe/commit/281412368cc8a0f) LisaWedin_Ductus)  
+
+### Dependency updates
+
+- update dependency @vue/test-utils to ^2.6.0 (#39) ([47094](https://github.com/Forsakringskassan/rimfrost-template-micro-fe/commit/47094d1f51899b6) renovate[bot])  
+- update dependency @module-federation/vite to ^1.24.1 (#38) ([9af22](https://github.com/Forsakringskassan/rimfrost-template-micro-fe/commit/9af22b2cf5974dd) renovate[bot])  
+- update dependency vite to ^7.3.7 (#37) ([e7661](https://github.com/Forsakringskassan/rimfrost-template-micro-fe/commit/e76619d1cf0923d) renovate[bot])  
+- update dependency sass-embedded to ^1.106.0 (#34) ([04928](https://github.com/Forsakringskassan/rimfrost-template-micro-fe/commit/0492833f6138aa2) renovate[bot])  
+- update dependency vite-plugin-vue-devtools to ^8.2.1 (#32) ([02346](https://github.com/Forsakringskassan/rimfrost-template-micro-fe/commit/023462aedc18f4d) renovate[bot])  
+- update dependency sass-embedded to ^1.105.1 (#31) ([40494](https://github.com/Forsakringskassan/rimfrost-template-micro-fe/commit/40494a021a382f0) renovate[bot])  
+- update dependency @vue/tsconfig to ^0.9.0 (#30) ([96a9d](https://github.com/Forsakringskassan/rimfrost-template-micro-fe/commit/96a9d68bf8bfa02) renovate[bot])  
+- update dependency @types/node to ^24.10.1 (#28) ([b99d7](https://github.com/Forsakringskassan/rimfrost-template-micro-fe/commit/b99d7bf9da5f5fe) renovate[bot])  
+- update dependency vite to ^7.3.5 (#27) ([5220e](https://github.com/Forsakringskassan/rimfrost-template-micro-fe/commit/5220e2bc2032adc) renovate[bot])  
+- update dependency @vue/test-utils to ^2.5.1 (#26) ([f81f8](https://github.com/Forsakringskassan/rimfrost-template-micro-fe/commit/f81f8ec69d18c05) renovate[bot])  
+- update dependency vite to v7.3.5 [security] (#25) ([12566](https://github.com/Forsakringskassan/rimfrost-template-micro-fe/commit/125667189b61b1c) renovate[bot])  
+### Other changes
+
+
+## rimfrost-1_2 (2026-09-17)
+
 ## 2.0.1 (2026-09-17)
 
 ### Bug Fixes
